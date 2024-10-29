@@ -1,0 +1,67 @@
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.demo.entity
+spring:
+#  datasource:
+#    url: jdbc:mysql://127.0.0.1:3306/order_db_0
+#    username: root
+#    password:
+  shardingsphere:
+    datasource:
+      names: ds0, ds1
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3306/order_db_0
+        username: root
+        password:
+#        hikari:
+#          minimum-idle: 5
+#          maximum-pool-size: 10
+#          idle-timeout: 30000
+#          max-lifetime: 1800000
+#          connection-timeout: 30000
+#          pool-name: HikariPool-ds0
+
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3306/order_db_1
+        username: root
+        password:
+#        hikari:
+#          minimum-idle: 5
+#          maximum-pool-size: 10
+#          idle-timeout: 30000
+#          max-lifetime: 1800000
+#          connection-timeout: 30000
+#          pool-name: HikariPool-ds1
+
+    sharding:
+      tables:
+        t_order:
+          actual-data-nodes: ds$->{0..1}.t_order
+          database-strategy:
+            inline:
+              sharding-column: order_id
+              algorithm-expression: ds$->{order_id % 2}
+          key-generator:
+            column: order_id
+            type: SNOWFLAKE
+
+        t_user:
+          actual-data-nodes: ds$->{0..1}.t_user
+          database-strategy:
+            inline:
+              sharding-column: user_id
+              algorithm-expression: ds$->{user_id % 2}
+          key-generator:
+            column: user_id
+            type: SNOWFLAKE
+
+    props:
+      # Enable SQL comment parsing (optional)
+      sql-comment-parse-enabled: true
+
+      # Show the actual SQL queries for debugging (optional)
+      sql-show: true

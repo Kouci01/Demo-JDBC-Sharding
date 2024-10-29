@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.OrderMapper">
+    <resultMap id="OrderResultMap" type="Order">
+        <id property="orderId" column="order_id" javaType="java.lang.Long" />
+        <result property="userId" column="user_id" javaType="java.lang.Long" />
+        <result property="status" column="status" javaType="java.lang.String" />
+        <result property="userName" column="user_name" javaType="java.lang.String" />
+    </resultMap>
+
+    <insert id="insertOrder" parameterType="com.example.demo.entity.Order">
+        INSERT INTO t_order (order_id, user_id, status)
+        VALUES (#{orderId}, #{userId}, #{status})
+    </insert>
+
+    <!-- Select all orders for testing -->
+    <select id="selectAllOrders" resultMap="OrderResultMap">
+        SELECT to2.order_id, to2.user_id, to2.status, tu.user_name
+        FROM t_order to2
+        LEFT JOIN t_user tu ON to2.user_id = tu.user_id
+        <where>
+            <if test="orderId !=null">
+                and order_id = #{orderId,jdbcType = INTEGER}
+            </if>
+            <if test="userId !=null">
+                and user_id = #{userId,jdbcType = INTEGER}
+            </if>
+            <if test="status !=null and '' != status">
+                <bind name="statusLike" value="'%' + status + '%'"/>
+                and status like #{statusLike}
+            </if>
+        </where>
+    </select>
+
+
+</mapper>
